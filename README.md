@@ -1,5 +1,5 @@
 # Installation
-1. Move [modules](modules) and [SpritesSlicer.lua](SpriteSlicer.lua) to aseprite scripts folder.
+1. Move [SpritesSlicer.lua](SpriteSlicer.lua) to aseprite scripts folder.
 The folder can be found using the button `File > Scripts > Open Scripts Folder`.
 
 ![Scripts Folder](https://github.com/user-attachments/assets/b0c03f1f-47dd-43a2-9f78-041c6e9ed4c0)

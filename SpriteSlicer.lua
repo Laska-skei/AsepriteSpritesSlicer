@@ -1,11 +1,11 @@
-
-local json = dofile("modules/json.lua") --import json
-
 local fragments = {}
 local dialog
 
+local function rectToStringNoBrackets(rect)
+	return rect.x .. ", " .. rect.y .. ", " .. rect.width .. ", " .. rect.height
+end
 local function rectToString(rect)
-	return '(' .. rect.x .. ", " .. rect.y .. ", " .. rect.width .. ", " .. rect.height .. ')'
+	return '(' .. rectToStringNoBrackets(rect) .. ')'
 end
 
 local function removeFragment(rect)
@@ -77,48 +77,47 @@ local function createFragment()
 	  addFragment(selection.bounds)
 end
 
-local function saveFragments(jsonPath)
-	local file = io.open(jsonPath, "w") -- "w" write mode
-	if not file then return app.alert("Failed to open write file: " ..jsonPath) end
+local function saveFragments(path)
+	local file = io.open(path, "w") -- "w" write mode
+	if not file then return app.alert("Failed to open write file: " ..path) end
 
-	local formatted = {}
+	--local formatted = {}
+	local text = ""
 	for id, rect in ipairs(fragments) do
 		if rect then 
-			formatted[id] = rectToString(rect)
+			text = text .. rectToStringNoBrackets(rect) .. '\n'
 		end
 	end
-	local text = json.encode(formatted)
 
-	
 	file:write(text)
 	file:close()
 end
 
 local function openSaveFragmentsDialog()
-	local exportDialog = Dialog{
-		title="Save fragments",
+	local saveDialog = Dialog{
+		title="Save slice data",
 		parent=dialog,
 	}
-	exportDialog:file{
+	saveDialog:file{
 		id="file",
-		label="Fragments data save location",
-		title="Select fragments data save location",
+		label="Slice data save location",
+		title="Select slice data save location",
 		open=false,
 		save=true,
-		filename= "Fragmetns.json",
-		filetypes={ "json" },
+		filename= "SliceData",
+		filetypes={ "" },
 		onchange=function ()
-			saveFragments(exportDialog.data.file)
-			exportDialog:close()
+			saveFragments(saveDialog.data.file)
+			saveDialog:close()
 		end,
 	}
-	exportDialog:show()
+	saveDialog:show()
 end
 
 
 --MAIN--
 dialog = Dialog{
-	title="Fragments",
+	title="Slice data",
 }
 
 dialog:button{

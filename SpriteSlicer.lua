@@ -19,9 +19,7 @@ local function removeFragment(rect)
 
 	if pos == -1 then return end --rect not found
 
-	print("remove frag at " .. tostring(pos))
 	table.remove(fragments, pos)
-	print("count " .. #fragments)
 
 
 	local bounds = dialog.bounds
@@ -36,11 +34,7 @@ end
 
 local function addFragment(rect)
 	local pos = #fragments + 1
-	print("add frag to " .. tostring(pos))
 	table.insert(fragments, pos, rect)
-	print("count " .. #fragments)
-
-	print(rect)
 
 	dialog:newrow() 
 	dialog:button{
@@ -89,7 +83,6 @@ local function saveFragments(jsonPath)
 
 	local formatted = {}
 	for id, rect in ipairs(fragments) do
-		print(id .. " " .. tostring(rect))
 		if rect then 
 			formatted[id] = rectToString(rect)
 		end
@@ -99,12 +92,11 @@ local function saveFragments(jsonPath)
 	
 	file:write(text)
 	file:close()
-    ::continue::
 end
 
-local function exportFragments()
+local function openSaveFragmentsDialog()
 	local exportDialog = Dialog{
-		title="Export fragments",
+		title="Save fragments",
 		parent=dialog,
 	}
 	exportDialog:file{
@@ -125,16 +117,9 @@ end
 
 
 --MAIN--
-
 dialog = Dialog{
 	title="Fragments",
 }
--- dialog:canvas{ 
--- 	id="canvas",
--- 	width=100,
--- 	height=100,
--- 	autoscaling=false,
--- }
 
 dialog:button{
 	id="add",
@@ -143,21 +128,12 @@ dialog:button{
 	onclick=createFragment
 }
 dialog:button{ 
-	id="export", 
-	text="Export", 
-	onclick=function() 
-		exportFragments()
-	end 
+	id="save", 
+	text="Save", 
+	onclick=openSaveFragmentsDialog
 }
 
--- dialog:button{ 
--- 	id="show", 
--- 	text="show", 
--- 	onclick=function() 
--- 		print(dialog.bounds)
--- 	end 
--- }
 dialog:separator()
 
 dialog:show{ wait=false }
-dialog.bounds = Rectangle(690, 40, 185, 200)
+dialog.bounds = Rectangle(690, 40, 200, 200)

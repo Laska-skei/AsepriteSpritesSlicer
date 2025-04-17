@@ -9,7 +9,7 @@ The folder can be found using the button `File > Scripts > Open Scripts Folder`.
 
 # Usage
 1. Open the sprite you want to slice.
-2. Run the script (a dialog box should open).
+2. Run the script via keyboard shortcut or via the button `File > Scripts > SpritesSlicer` (a dialog box should open).
 3. Select the desired fragment of the sprite using rectangular selection.
 4. Click the **Add from selection** button in the dialog box.
 5. Repeat steps 3 and 4 until you have added all the desired fragments.

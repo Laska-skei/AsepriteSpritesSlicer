@@ -1,6 +1,7 @@
 local fragments = {}
 local dialog
 
+
 local function assetType(name, value, type --[[string]]) 
 	assert(type(value) == type, name.." must be " ..type.. ", was " .. type(value))
 end
@@ -9,9 +10,21 @@ local function rectToStringNoBrackets(rect --[[Rectangle]]) --> string
 	--assert(type(rect) == "Rectangle")
 	return rect.x .. ", " .. rect.y .. ", " .. rect.width .. ", " .. rect.height
 end
-local function rectToString(rect --[[int]]) --> string
+local function rectToString(rect --[[Rectangle]]) --> string
 	--assert(type(rect) == "Rectangle")
 	return '(' .. rectToStringNoBrackets(rect) .. ')'
+end
+
+local function indexToString(index--[[int]]) --> string
+	return '['.. tostring(index) .. ']'
+end
+
+local function updateFragmentsIndexes()
+	for i, rect in ipairs(fragments) do
+		if rect then
+			dialog:modify{ id="frag_"..rectToString(rect), text=indexToString(i - 1) ..' '.. rectToString(rect)}
+		end
+	end
 end
 
 local function removeFragment(rect)
@@ -30,22 +43,26 @@ local function removeFragment(rect)
 
 	local bounds = dialog.bounds
 
-	dialog:modify{ id="frag_"..rectToString(rect),
-	visible=false }
-	dialog:modify{ id="del_"..rectToString(rect),
-	visible=false }
+	dialog:modify{ id="frag_"..rectToString(rect), visible=false }
+	dialog:modify{ id="del_"..rectToString(rect), visible=false }
+	updateFragmentsIndexes()
 
 	dialog.bounds = bounds -- return previous bounds
 end
-
 local function addFragment(rect)
+	for i, r in ipairs(fragments) do
+		if r and r == rect then -- already in fragments
+			return 
+		end
+	end
+
 	local pos = #fragments + 1
 	table.insert(fragments, pos, rect)
 
 	dialog:newrow() 
 	dialog:button{
 		id="frag_"..rectToString(rect),
-		text=rectToString(rect),
+		text=indexToString(pos - 1) ..' '.. rectToString(rect),
 		onclick=function()
 			local sprite = app.activeSprite
 			if not sprite then return end
@@ -89,7 +106,7 @@ local function saveFragments(path --[[string]])
 
 	--local formatted = {}
 	local text = ""
-	for id, rect in ipairs(fragments) do
+	for i, rect in ipairs(fragments) do
 		if rect then 
 			text = text .. rectToStringNoBrackets(rect) .. '\n'
 		end

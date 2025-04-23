@@ -1,10 +1,16 @@
 local fragments = {}
 local dialog
 
-local function rectToStringNoBrackets(rect)
+local function assetType(name, value, type --[[string]]) 
+	assert(type(value) == type, name.." must be " ..type.. ", was " .. type(value))
+end
+
+local function rectToStringNoBrackets(rect --[[Rectangle]]) --> string
+	--assert(type(rect) == "Rectangle")
 	return rect.x .. ", " .. rect.y .. ", " .. rect.width .. ", " .. rect.height
 end
-local function rectToString(rect)
+local function rectToString(rect --[[int]]) --> string
+	--assert(type(rect) == "Rectangle")
 	return '(' .. rectToStringNoBrackets(rect) .. ')'
 end
 
@@ -77,7 +83,7 @@ local function createFragment()
 	  addFragment(selection.bounds)
 end
 
-local function saveFragments(path)
+local function saveFragments(path --[[string]])
 	local file = io.open(path, "w") -- "w" write mode
 	if not file then return app.alert("Failed to open write file: " ..path) end
 
@@ -91,6 +97,38 @@ local function saveFragments(path)
 
 	file:write(text)
 	file:close()
+end
+
+local function loadFragments(path --[[string]])
+	--assetType()
+
+	local file = io.open(path, "r") -- "r" read mode
+	if not file then return app.alert("Failed to open read file: " ..path) end
+
+	local loadedFragments = {}
+	while true do
+		local line = file:read("l")
+		if not line or line == nil or line == "" then break end
+		
+		local values = {}
+		for num in line:gmatch("%-?%d+") do
+			table.insert(values, tonumber(num))
+		end
+		if #values ~= 4 then
+			error("Found " .. #values .." numbers in line, must be 4.")
+		end
+
+		local x, y, width, height = table.unpack(values)
+		table.insert(loadedFragments, Rectangle(x, y, width, height))
+	end
+	
+	file:close()
+
+	fragments = {}
+	for i, frag in ipairs(loadedFragments) do
+		addFragment(frag)
+	end
+
 end
 
 local function openSaveFragmentsDialog()
@@ -113,18 +151,42 @@ local function openSaveFragmentsDialog()
 	}
 	saveDialog:show()
 end
+local function openLoadFragmentsDialog()
+	local loadDialog = Dialog{
+		title="Load slice data",
+		parent=dialog,
+	}
+	loadDialog:file{
+		id="file",
+		label="Slice data location",
+		title="Select slice data location to load",
+		open=true,
+		filetypes={ "" },
+		onchange=function ()
+			loadFragments(loadDialog.data.file)
+			loadDialog:close()
+		end,
+	}
+	loadDialog:show()
+end
 
 
---MAIN--
+---------MAIN---------
 dialog = Dialog{
 	title="Slice data",
 }
 
 dialog:button{
 	id="add",
-	text="Add from selection",
+	text="Add",
 	selected=true,
 	onclick=createFragment
+}
+
+dialog:button{ 
+	id="load", 
+	text="Load", 
+	onclick=openLoadFragmentsDialog
 }
 dialog:button{ 
 	id="save", 
